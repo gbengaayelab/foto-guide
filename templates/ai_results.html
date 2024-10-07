@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Camera Setup and Exposure Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        p {
+            line-height: 1.6;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background-color: #e7f3ff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>AI Camera Setup and Exposure Recommendations</h2>
+
+    <p><strong>Camera Positioning Tips:</strong></p>
+    <p>{{ camera_tips }}</p>
+
+    <p><strong>Exposure Settings:</strong></p>
+    <ul>
+        <li>Aperture: {{ exposure_tips['Aperture'] }}</li>
+        <li>ISO: {{ exposure_tips['ISO'] }}</li>
+        <li>Shutter Speed: {{ exposure_tips['Shutter Speed'] }}</li>
+        <li>White Balance: {{ exposure_tips['White Balance'] }}</li>
+        <li>Focus Mode: {{ exposure_tips['Focus Mode'] }}</li>
+    </ul>
+
+    <p><strong>Additional AI Insights:</strong></p>
+    <p>{{ openai_response }}</p>
+
+    <div class="button-container">
+        <button onclick="window.history.back()">Upload Another Image</button>
+    </div>
+</div>
+
+</body>
+</html>
