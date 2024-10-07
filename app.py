@@ -197,6 +197,7 @@ def index():
 def ai_advisor():
     camera_tips = ""
     exposure_tips = {}
+    error_message = None  # Add error message variable
     
     if request.method == "POST":
         if 'image' not in request.files:
@@ -212,9 +213,14 @@ def ai_advisor():
             file.save(image_path)
             
             # Call AI function for recommendations
-            camera_tips, exposure_tips = ai_recommendations(image_path)
+            try:
+                camera_tips, exposure_tips = ai_recommendations(image_path)
+            except Exception as e:
+                error_message = str(e)  # Capture the error message
     
-    return render_template("ai_advisor.html", camera_tips=camera_tips, exposure_tips=exposure_tips)
+    return render_template("ai_advisor.html", camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
+
+    print(f"Using OpenAI API Key: {OPENAI_API_KEY}")  # Add this line to check if the key is being loaded
 
 if __name__ == "__main__":
     app.run(debug=True)

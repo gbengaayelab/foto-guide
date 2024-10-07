@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,195 +8,75 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-    margin: 0;
-    font-family: Arial, sans-serif; /* Change font family as needed */
-    background-color: #f8f9fa; /* Light background color for contrast */
-}
+            margin: 0;
+            font-family: Arial, sans-serif; /* Change font family as needed */
+            background-color: #f8f9fa; /* Light background color for contrast */
+        }
 
-.container {
-    max-width: 1200px; /* Maximum width for content */
-    margin: 0 auto; /* Center the container */
-    padding: 20px; /* Add padding */
-}
+        .container {
+            max-width: 1200px; /* Maximum width for content */
+            margin: 0 auto; /* Center the container */
+            padding: 20px; /* Add padding */
+        }
 
-.section {
-    padding: 40px; /* Add more space around sections */
-    margin-bottom: 20px; /* Space between sections */
-    background-color: white; /* White background for sections */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
+        .section {
+            padding: 40px; /* Add more space around sections */
+            margin-bottom: 20px; /* Space between sections */
+            background-color: white; /* White background for sections */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
 
-h2 {
-    color: #333; /* Darker color for headings */
-    font-size: 2rem; /* Increase heading size */
-}
+        h2 {
+            color: #333; /* Darker color for headings */
+            font-size: 2rem; /* Increase heading size */
+        }
 
-p {
-    color: #666; /* Gray color for text */
-    font-size: 1.2rem; /* Slightly larger text */
-    line-height: 1.5; /* Improve line spacing */
-}
+        p {
+            color: #666; /* Gray color for text */
+            font-size: 1.2rem; /* Slightly larger text */
+            line-height: 1.5; /* Improve line spacing */
+        }
 
-.rating {
-    color: gold; /* Gold color for rating */
-    font-size: 1.5rem; /* Larger size for rating */
-}
+        .rating {
+            color: gold; /* Gold color for rating */
+            font-size: 1.5rem; /* Larger size for rating */
+        }
 
-.upload-section {
-    margin-top: 30px;
-    padding: 20px;
-    border: 2px dashed #ddd;
-    background-color: #f0f0f0; /* Light background for upload section */
-    border-radius: 5px; /* Rounded corners */
-}
+        .upload-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            background-color: #f0f0f0; /* Light background for upload section */
+            border-radius: 5px; /* Rounded corners */
+        }
 
-.uploaded-img {
-    max-width: 100%;
-    margin-top: 20px;
-}
-        
-.hero {
+        .uploaded-img {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+
+        .hero-section {
             background-image: url('https://example.com/hero-image.jpg');
             background-size: cover;
             background-position: center;
             color: white;
             padding: 100px 0;
-}
-        
-        /* Rating Section */
-.rating {
-    color: gold;
-    font-size: 1.5rem; /* Increase the size for better visibility */
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
+        }
 
-/* Upload Section */
-.upload-section {
-    margin-top: 30px;
-    padding: 20px;
-    border: 2px dashed #ddd;
-    text-align: center;
-    background-color: #f9f9f9; /* Lighter background for better contrast */
-    transition: border-color 0.3s ease;
-}
-.upload-section:hover {
-    border-color: #aaa; /* Darken border on hover for better feedback */
-}
-
-.uploaded-img {
-    max-width: 100%;
-    margin-top: 20px;
-    border-radius: 10px; /* Optional: add rounded corners to the image */
-}
-
-/* Hero Section */
-.hero-section {
-    background-image: url('{{ url_for('static', filename='images/header.jpg') }}'); 
-    background-size: cover;
-    background-position: center;
-    height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    color: white;
-    text-align: center;
-    position: relative;
-}
-
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.11); /* Dark overlay to make text stand out */
-    z-index: 1;
-}
-
-.hero-section h1, .hero-section p {
-    z-index: 2; /* Ensure text is above the overlay */
-}
-
-.hero-section h1 {
-    font-size: 4rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.hero-section p {
-    font-size: 1.5rem;
-}
-
-/* Navbar */
-.navbar {
-    background-color: #327dc8;
-}
-
-.navbar-nav .nav-link {
-    color: white !important;
-}
-
-.footer {
-    background-color: #343a40; /* Dark background for footer */
-    color: white; /* White text color */
-    padding: 20px 0; /* Padding for footer */
-    text-align: center; /* Center the text */
-    position: relative; /* Position relative for proper layout */
-}
-
-.footer p {
-    margin: 0; /* Remove default margin */
-}
-
-.footer-links {
-    list-style-type: none; /* Remove bullet points */
-    padding: 0; /* Remove padding */
-    margin: 10px 0; /* Margin around links */
-}
-
-.footer-links li {
-    display: inline; /* Display links inline */
-    margin: 0 15px; /* Space between links */
-}
-
-.footer a {
-    color: white; /* White text for links */
-    text-decoration: none; /* Remove underline */
-}
-
-.footer a:hover {
-    text-decoration: underline; /* Underline on hover */
-}
-
-.social-media {
-    margin-top: 10px; /* Space above social media links */
-}
-
-.social-media a {
-    margin: 0 10px; /* Space between social media links */
-    color: white; /* White text for social media links */
-}
-
-/* Media Query for Mobile */
-@media (max-width: 768px) {
-    .hero-section h1 {
-        font-size: 3rem;
-    }
-    .hero-section p {
-        font-size: 1.2rem;
-    }
-}
+        .footer {
+            background-color: #343a40; /* Dark background for footer */
+            color: white; /* White text color */
+            padding: 20px 0; /* Padding for footer */
+            text-align: center; /* Center the text */
+            position: relative; /* Position relative for proper layout */
+        }
     </style>
 </head>
 
 <body>
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">Photography Guide</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -223,9 +102,8 @@ p {
         </div>
     </nav>
 
-     <!-- Hero Section -->
+    <!-- Hero Section -->
     <div class="hero-section">
-        <div class="overlay"></div>
         <div class="hero-text">
             <h1>Photography Guide</h1>
             <h4>Master the Exposure Triangle with expert recommendations</h4>
@@ -253,14 +131,14 @@ p {
 
         <!-- Display AI Recommendations -->
         {% if image_path %}
-        <div class="result-section">
+        <div class="result-section mt-5">
             <h3>Uploaded Image:</h3>
             <img src="{{ url_for('static', filename='uploads/' + image_path.split('/')[-1]) }}" class="uploaded-img">
 
-            <h4>Camera Setup Tips:</h4>
+            <h4 class="mt-4">Camera Setup Tips:</h4>
             <p>{{ camera_tips }}</p>
 
-            <h4>Exposure Settings:</h4>
+            <h4 class="mt-4">Exposure Settings:</h4>
             <ul>
                 <li><strong>Aperture:</strong> {{ exposure_tips['Aperture'] }}</li>
                 <li><strong>ISO:</strong> {{ exposure_tips['ISO'] }}</li>
@@ -268,8 +146,20 @@ p {
                 <li><strong>White Balance:</strong> {{ exposure_tips['White Balance'] }}</li>
                 <li><strong>Focus Mode:</strong> {{ exposure_tips['Focus Mode'] }}</li>
             </ul>
+
+            <div class="mt-5">
+                <h4>Additional AI Recommendations:</h4>
+                <p style="margin-bottom: 1rem;">Consider adjusting your settings based on the following tips:</p>
+                <p>{{ ai_recommendations }}</p>
+            </div>
         </div>
         {% endif %}
+        {% if error_message %}
+        <div class="alert alert-danger">
+            {{ error_message }}
+        </div>
+        {% endif %}
+    
     </div>
 
     <!-- Footer -->
