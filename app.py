@@ -135,6 +135,9 @@ def ai_recommendations(image_path):
             messages=[{"role": "user", "content": prompt}]
         )
 
+        # Log the full response for debugging
+        print(f"Response from OpenAI: {response}")  # Log the entire response
+
         # Extract the AI's response
         recommendations = response.choices[0].message['content']
 
@@ -151,20 +154,16 @@ def ai_recommendations(image_path):
 def parse_recommendations(recommendations):
     lines = recommendations.strip().split('\n')
 
-    # Ensure there are enough lines to parse
-    if len(lines) < 6:
-        raise ValueError("Insufficient recommendation lines provided.")
-    
-    camera_tips = lines[0].strip()  # First line contains camera tips
-    
+    # Check if we have enough lines and adjust accordingly
+    camera_tips = lines[0].strip() if len(lines) > 0 else "No camera tips provided"
     exposure_tips = {
-        "Aperture": lines[1].strip(),      # Second line for aperture
-        "ISO": lines[2].strip(),           # Third line for ISO
-        "Shutter Speed": lines[3].strip(),  # Fourth line for shutter speed
-        "White Balance": lines[4].strip(),  # Fifth line for white balance
-        "Focus Mode": lines[5].strip()       # Sixth line for focus mode
+        "Aperture": lines[1].strip() if len(lines) > 1 else "No aperture recommendation",
+        "ISO": lines[2].strip() if len(lines) > 2 else "No ISO recommendation",
+        "Shutter Speed": lines[3].strip() if len(lines) > 3 else "No shutter speed recommendation",
+        "White Balance": lines[4].strip() if len(lines) > 4 else "No white balance recommendation",
+        "Focus Mode": lines[5].strip() if len(lines) > 5 else "No focus mode recommendation"
     }
-    
+
     return camera_tips, exposure_tips
 
 # Home route with existing recommendations
