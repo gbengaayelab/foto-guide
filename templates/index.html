@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography Guide: Exposure Triangle</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+    margin: 0;
+    font-family: Arial, sans-serif; /* Change font family as needed */
+    background-color: #f8f9fa; /* Light background color for contrast */
+}
+
+.container {
+    max-width: 1200px; /* Maximum width for content */
+    margin: 0 auto; /* Center the container */
+    padding: 20px; /* Add padding */
+}
+
+.section {
+    padding: 40px; /* Add more space around sections */
+    margin-bottom: 20px; /* Space between sections */
+    background-color: white; /* White background for sections */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+h2 {
+    color: #333; /* Darker color for headings */
+    font-size: 2rem; /* Increase heading size */
+}
+
+p {
+    color: #666; /* Gray color for text */
+    font-size: 1.2rem; /* Slightly larger text */
+    line-height: 1.5; /* Improve line spacing */
+}
+
+.rating {
+    color: gold; /* Gold color for rating */
+    font-size: 1.5rem; /* Larger size for rating */
+}
+
+.upload-section {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    background-color: #f0f0f0; /* Light background for upload section */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.uploaded-img {
+    max-width: 100%;
+    margin-top: 20px;
+}
+        
+.hero {
+            background-image: url('https://example.com/hero-image.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+}
+        
+        /* Rating Section */
+.rating {
+    color: gold;
+    font-size: 1.5rem; /* Increase the size for better visibility */
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Upload Section */
+.upload-section {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    text-align: center;
+    background-color: #f9f9f9; /* Lighter background for better contrast */
+    transition: border-color 0.3s ease;
+}
+.upload-section:hover {
+    border-color: #aaa; /* Darken border on hover for better feedback */
+}
+
+.uploaded-img {
+    max-width: 100%;
+    margin-top: 20px;
+    border-radius: 10px; /* Optional: add rounded corners to the image */
+}
+
+/* Hero Section */
+.hero-section {
+    background-image: url('{{ url_for('static', filename='images/header.jpg') }}'); 
+    background-size: cover;
+    background-position: center;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.11); /* Dark overlay to make text stand out */
+    z-index: 1;
+}
+
+.hero-section h1, .hero-section p {
+    z-index: 2; /* Ensure text is above the overlay */
+}
+
+.hero-section h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #327dc8;
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+}
+
+.footer {
+    background-color: #343a40; /* Dark background for footer */
+    color: white; /* White text color */
+    padding: 20px 0; /* Padding for footer */
+    text-align: center; /* Center the text */
+    position: relative; /* Position relative for proper layout */
+}
+
+.footer p {
+    margin: 0; /* Remove default margin */
+}
+
+.footer-links {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin: 10px 0; /* Margin around links */
+}
+
+.footer-links li {
+    display: inline; /* Display links inline */
+    margin: 0 15px; /* Space between links */
+}
+
+.footer a {
+    color: white; /* White text for links */
+    text-decoration: none; /* Remove underline */
+}
+
+.footer a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+.social-media {
+    margin-top: 10px; /* Space above social media links */
+}
+
+.social-media a {
+    margin: 0 10px; /* Space between social media links */
+    color: white; /* White text for social media links */
+}
+
+/* Media Query for Mobile */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 3rem;
+    }
+    .hero-section p {
+        font-size: 1.2rem;
+    }
+}
+    </style>
+</head>
+
+<body>
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Photography Guide</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ai_advisor') }}">AI Shot Advisor</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Guide</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+     <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="overlay"></div>
+        <div class="hero-text">
+            <h1>Photography Guide</h1>
+            <h4>Master the Exposure Triangle with expert recommendations</h4>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form method="POST" enctype="multipart/form-data" class="form-group">
+                    <div class="form-group">
+                        <label for="event_type">Select Event Type:</label>
+                        <select name="event_type" id="event_type" class="form-control" required>
+                            <option value="1">Outdoor</option>
+                            <option value="2">Indoor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject_type">Select Subject Type:</label>
+                        <select name="subject_type" id="subject_type" class="form-control" required>
+                            <option value="1">Butterfly</option>
+                            <option value="2">Landscape</option>
+                            <option value="3">Running Water</option>
+                    <option value="4">Wildlife</option>
+                    <option value="5">Street Photography</option>
+                    <option value="6">Events (Festivals, Concerts)</option>
+                    <option value="7">Indoor Portrait</option>
+                    <option value="8">Indoor Landscape</option>
+                    <option value="9">Indoor Action</option>
+                    <option value="10">Product Photography</option>
+                    <option value="11">Low Light Situations</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Get Recommendations</button>
+                </form>
+
+                <!-- Recommendations Section -->
+                {% if recommendation %}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Settings Recommendation</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Aperture:</strong> {{ recommendation['Aperture'] }}</p>
+                        <p><strong>Shutter Speed:</strong> {{ recommendation['Shutter Speed'] }}</p>
+                        <p><strong>ISO:</strong> {{ recommendation['ISO'] }}</p>
+                        <p><strong>Explanation:</strong><br>{{ recommendation['Explanation'] }}</p>
+                        <p><strong>Rating:</strong> <span class="rating">⭐⭐⭐⭐⭐ {{ recommendation['Rating'] }}/5</span></p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Image Upload Section -->
+                <div class="upload-section">
+                    <h5>Upload Your Picture:</h5>
+                    <input type="file" name="file" class="form-control-file">
+                    <button type="submit" class="btn btn-info btn-block mt-3">Upload</button>
+                    {% if uploaded_file_url %}
+                    <img src="{{ uploaded_file_url }}" class="uploaded-img">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Photography Guide. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <div class="social-media">
+                <a href="#" target="_blank">Facebook</a>
+                <a href="#" target="_blank">Instagram</a>
+                <a href="#" target="_blank">Twitter</a>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap JS and Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+     <!-- JavaScript for Dynamic Dropdowns -->
+     <script>
+        document.getElementById("event_type").addEventListener("change", function() {
+            var eventType = this.value;
+            var subjectSelect = document.getElementById("subject_type");
+
+            // Clear any existing options
+            subjectSelect.innerHTML = "";
+
+            if (eventType === "1") {  // Outdoor
+                var outdoorSubjects = {
+                    1: "Butterfly",
+                    2: "Landscape",
+                    3: "Running Water",
+                    4: "Wildlife",
+                    5: "Street Photography",
+                    6: "Events (Festivals, Concerts)"
+                };
+                for (var key in outdoorSubjects) {
+                    var option = document.createElement("option");
+                    option.value = key;
+                    option.text = outdoorSubjects[key];
+                    subjectSelect.appendChild(option);
+                }
+            } else if (eventType === "2") {  // Indoor
+                var indoorSubjects = {
+                    7: "Indoor Portrait",
+                    8: "Indoor Landscape",
+                    9: "Indoor Action",
+                    10: "Product Photography",
+                    11: "Low Light Situations"
+                };
+                for (var key in indoorSubjects) {
+                    var option = document.createElement("option");
+                    option.value = key;
+                    option.text = indoorSubjects[key];
+                    subjectSelect.appendChild(option);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
