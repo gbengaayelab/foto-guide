@@ -1,8 +1,8 @@
 import os
+from dotenv import load_dotenv
 from flask import Flask, request, render_template
-from groq import Groq
 from werkzeug.utils import secure_filename
-import os
+from groq import Groq
 
 
 
@@ -14,14 +14,20 @@ groq_client = Groq(
 )
 
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Configurations for file uploads
 UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Retrieve the OpenAI API key from the environment variable
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+ # Get the API key
+api_key = os.environ.get("GROQ_API_KEY")
+if not api_key:
+    raise ValueError("The GROQ_API_KEY environment variable must be set.")
 
+groq_client = Groq(api_key=api_key)
 # Helper function to check allowed file types
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
