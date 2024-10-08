@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from werkzeug.utils import secure_filename
+import openai
 
 app = Flask(__name__)
 
@@ -9,23 +10,20 @@ UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
 # Retrieve the OpenAI API key from the environment variable
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
 
 # Helper function to check allowed file types
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 # Ensure the uploads folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-
 def get_recommendations(event_type, subject_type):
-    if event_type == 1:  # Outdoor
+    # Event type 1: Outdoor
+    if event_type == 1:
         if subject_type == 1:  # Butterfly
             aperture = "f/2.8 to f/4"
             shutter_speed = "1/1000s"
@@ -78,7 +76,8 @@ def get_recommendations(event_type, subject_type):
             )
             rating = 4.5
 
-    elif event_type == 2:  # Indoor
+    # Event type 2: Indoor
+    elif event_type == 2:
         if subject_type == 7:  # Indoor Portrait
             aperture = "f/2.8 to f/4"
             shutter_speed = "1/125s"
@@ -123,13 +122,25 @@ def get_recommendations(event_type, subject_type):
 
     return aperture, shutter_speed, iso, explanation, rating
 
-
 # AI-based recommendations logic
-import openai
+def parse_recommendations(recommendations):
+    """
+    Parses the raw response from the OpenAI API to extract camera tips and exposure tips.
+    This function can be customised based on how OpenAI responds.
+    """
+    # Example parsing logic (this depends on how OpenAI responds)
+    lines = recommendations.split('\n')
+    camera_tips = lines[0]  # Assume first line is camera tips
+    exposure_tips = {
+        'aperture': lines[1].split(':')[1].strip(),
+        'shutter_speed': lines[2].split(':')[1].strip(),
+        'ISO': lines[3].split(':')[1].strip()
+    }
+    return camera_tips, exposure_tips
 
 def ai_recommendations(image_path):
     # Load your OpenAI API key from environment variables
-    openai.api_key = os.environ.get("OPENAI_API_KEY")
+    openai.api_key = OPENAI_API_KEY
 
     # Create a prompt for the OpenAI model
     prompt = f"Analyze the image at '{image_path}' and provide photography recommendations including camera settings like aperture, shutter speed, ISO, white balance, and focus mode."
@@ -137,7 +148,7 @@ def ai_recommendations(image_path):
     try:
         # Call the OpenAI API
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # You can use "gpt-4" if you have access
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": prompt}
             ]
@@ -146,8 +157,7 @@ def ai_recommendations(image_path):
         # Extract the AI's response
         recommendations = response.choices[0].message['content']
 
-        # Process the recommendations if needed
-        # This could involve parsing the response into structured data
+        # Parse the recommendations
         camera_tips, exposure_tips = parse_recommendations(recommendations)
 
         return camera_tips, exposure_tips
@@ -155,7 +165,6 @@ def ai_recommendations(image_path):
     except Exception as e:
         print(f"An error occurred while calling OpenAI API: {e}")
         return "Error generating recommendations", {}
-
 
 # Home route with existing recommendations
 @app.route("/", methods=["GET", "POST"])
@@ -182,14 +191,13 @@ def index():
                 uploaded_file_url = url_for('static', filename=f'uploads/{filename}')
     return render_template("index.html", recommendation=recommendation, uploaded_file_url=uploaded_file_url)
 
-
 # AI Shot Advisor route
 @app.route("/ai_advisor", methods=["GET", "POST"])
 def ai_advisor():
     camera_tips = ""
     exposure_tips = {}
     image_path = ""
-    error_message = None  # Ensure error_message is initialized
+    error_message = None
 
     if request.method == "POST":
         if 'image' not in request.files:
@@ -210,7 +218,6 @@ def ai_advisor():
             camera_tips, exposure_tips = ai_recommendations(image_path)
     
     return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
