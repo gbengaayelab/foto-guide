@@ -1,9 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
 import os
+from flask import Flask, request, render_template
+from groq import Groq
 from werkzeug.utils import secure_filename
-import openai
+import os
+
+
 
 app = Flask(__name__)
+
+# Initialise Groq client
+groq_client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),  # Set your Groq API key as an environment variable
+)
+
 
 # Configurations for file uploads
 UPLOAD_FOLDER = 'static/uploads/'
@@ -191,31 +200,33 @@ def ai_recommendations(image_path):
         return "Error generating recommendations", {}, "Summary not available."
 
 # Home route with existing recommendations
-@app.route("/", methods=["GET", "POST"])
-def index():
-    recommendation = {}
-    uploaded_file_url = None
-    if request.method == "POST":
-        if 'event_type' in request.form and 'subject_type' in request.form:
-            event_type = int(request.form["event_type"])
-            subject_type = int(request.form["subject_type"])
-            aperture, shutter_speed, iso, explanation, rating = get_recommendations(event_type, subject_type)
-            recommendation = {
-                "Aperture": aperture,
-                "Shutter Speed": shutter_speed,
-                "ISO": iso,
-                "Explanation": explanation,
-                "Rating": rating
-            }
-        if 'file' in request.files:
-            file = request.files['file']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                uploaded_file_url = url_for('static', filename=f'uploads/{filename}')
-    return render_template("index.html", recommendation=recommendation, uploaded_file_url=uploaded_file_url)
+@app.route('/ai_advisor', methods=['POST'])
+def ai_advisor():
+    if 'file' not in request.files:
+        return "No file part"
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file"
+    
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
 
-# AI Shot Advisor route
+        # Prepare prompt for Groq model
+        prompt = f"Based on this image at '{filepath}', provide camera positioning tips and exposure settings."
+
+        # Call Groq's LLM for recommendations
+        response = groq_client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama3-8b-8192",
+        )
+
+        # Extract the content from the response
+        recommendations = response.choices[0].message.content
+
+        return render_template('ai_advisor.html', filename=filename, recommendations=recommendations)
+
 @app.route("/ai_advisor", methods=["GET", "POST"])
 def ai_advisor():
     camera_tips = ""
@@ -239,7 +250,7 @@ def ai_advisor():
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(image_path)
             
-            # Call AI function for recommendations
+            # Call Groq AI function for recommendations
             camera_tips, exposure_tips, key_recommendations = ai_recommendations(image_path)
     
     return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
