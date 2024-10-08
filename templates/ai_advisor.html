@@ -1,3 +1,6 @@
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -249,38 +252,25 @@ p {
         </form>
 
         <!-- Display AI Recommendations -->
-{% if image_path %}
-<div class="result-section mt-5">
-    <h3>Uploaded Image:</h3>
-    <img src="{{ url_for('static', filename='uploads/' + image_path.split('/')[-1]) }}" class="uploaded-img">
+        {% if image_path %}
+        <div class="result-section">
+            <h3>Uploaded Image:</h3>
+            <img src="{{ url_for('static', filename='uploads/' + image_path.split('/')[-1]) }}" class="uploaded-img">
 
-    <h4 class="mt-4">Camera Setup Tips:</h4>
-    <p>{{ camera_tips }}</p>
+            <h4>Camera Setup Tips:</h4>
+            <p>{{ camera_tips }}</p>
 
-    <h4 class="mt-4">Exposure Settings:</h4>
-    <ul>
-        <li><strong>Aperture:</strong> {{ exposure_tips.get('Aperture', 'No recommendation') }}</li>
-        <li><strong>ISO:</strong> {{ exposure_tips.get('ISO', 'No recommendation') }}</li>
-        <li><strong>Shutter Speed:</strong> {{ exposure_tips.get('Shutter Speed', 'No recommendation') }}</li>
-        <li><strong>White Balance:</strong> {{ exposure_tips.get('White Balance', 'No recommendation') }}</li>
-        <li><strong>Focus Mode:</strong> {{ exposure_tips.get('Focus Mode', 'No recommendation') }}</li>
-    </ul>
-
-    <div class="mt-5">
-        <h4>Additional AI Recommendations:</h4>
-        <p style="margin-bottom: 1rem;">Consider adjusting your settings based on the following tips:</p>
-        <p>{{ ai_recommendations.get('aperture', 'No recommendation') }}</p>
-        <p>{{ ai_recommendations.get('iso', 'No recommendation') }}</p>
-        <p>{{ ai_recommendations.get('shutter_speed', 'No recommendation') }}</p>
+            <h4>Exposure Settings:</h4>
+            <ul>
+                <li><strong>Aperture:</strong> {{ exposure_tips['Aperture'] }}</li>
+                <li><strong>ISO:</strong> {{ exposure_tips['ISO'] }}</li>
+                <li><strong>Shutter Speed:</strong> {{ exposure_tips['Shutter Speed'] }}</li>
+                <li><strong>White Balance:</strong> {{ exposure_tips['White Balance'] }}</li>
+                <li><strong>Focus Mode:</strong> {{ exposure_tips['Focus Mode'] }}</li>
+            </ul>
+        </div>
+        {% endif %}
     </div>
-</div>
-{% endif %}
-{% if error_message %}
-<div class="alert alert-danger">
-    {{ error_message }}
-</div>
-{% endif %}
-</div>
 
     <!-- Footer -->
     <footer class="footer">
