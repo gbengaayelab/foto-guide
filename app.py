@@ -143,7 +143,7 @@ def ai_recommendations(image_path):
     openai.api_key = OPENAI_API_KEY
 
     # Create a prompt for the OpenAI model
-    prompt = f"Analyze the image at '{image_path}' and provide photography recommendations including camera settings like aperture, shutter speed, ISO, white balance, and focus mode."
+    prompt = f"Analyze the image at '{image_path}' and provide photography recommendations including camera settings like aperture, shutter speed, ISO, white balance, focus mode, and a short summary of key recommendations."
 
     try:
         # Call the OpenAI API
@@ -154,17 +154,28 @@ def ai_recommendations(image_path):
             ]
         )
 
+        # Print the entire response for debugging
+        print("OpenAI API response:", response)
+
+        # Ensure there are choices in the response
+        if not response.choices:
+            return "No recommendations available.", {}, "Summary not available."
+
         # Extract the AI's response
         recommendations = response.choices[0].message['content']
 
         # Parse the recommendations
         camera_tips, exposure_tips = parse_recommendations(recommendations)
 
-        return camera_tips, exposure_tips
+        # Also extract a summary from the response (e.g., last lines or a specific structure)
+        summary_start = recommendations.find("Key Recommendations:")
+        key_recommendations = recommendations[summary_start:].strip() if summary_start != -1 else "Summary not available."
+
+        return camera_tips, exposure_tips, key_recommendations
 
     except Exception as e:
         print(f"An error occurred while calling OpenAI API: {e}")
-        return "Error generating recommendations", {}
+        return "Error generating recommendations", {}, "Summary not available."
 
 # Home route with existing recommendations
 @app.route("/", methods=["GET", "POST"])
@@ -196,18 +207,19 @@ def index():
 def ai_advisor():
     camera_tips = ""
     exposure_tips = {}
+    key_recommendations = ""
     image_path = ""
     error_message = None
 
     if request.method == "POST":
         if 'image' not in request.files:
             error_message = "No image file selected."
-            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
         
         file = request.files['image']
         if file.filename == '':
             error_message = "No file was uploaded."
-            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -215,9 +227,9 @@ def ai_advisor():
             file.save(image_path)
             
             # Call AI function for recommendations
-            camera_tips, exposure_tips = ai_recommendations(image_path)
+            camera_tips, exposure_tips, key_recommendations = ai_recommendations(image_path)
     
-    return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
+    return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
 
 if __name__ == "__main__":
     app.run(debug=True)
