@@ -261,7 +261,12 @@ p {
     <h2>Uploaded Image</h2>
     <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" width="300px">
     {% endif %}
-
+        <!-- ai_advisor.html -->
+    {% if image_path %}
+    <img src="{{ image_path }}" alt="Uploaded Image" style="max-width: 100%; height: auto;">
+    {% else %}
+    <p>No image uploaded yet.</p>
+    {% endif %}
     <!-- Show AI camera tips -->
     {% if camera_tips %}
     <h2>Camera Tips</h2>

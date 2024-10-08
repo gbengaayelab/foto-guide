@@ -126,17 +126,33 @@ def get_recommendations(event_type, subject_type):
 def parse_recommendations(recommendations):
     """
     Parses the raw response from the OpenAI API to extract camera tips and exposure tips.
-    This function can be customised based on how OpenAI responds.
     """
-    # Example parsing logic (this depends on how OpenAI responds)
+    # Split the recommendations into lines
     lines = recommendations.split('\n')
-    camera_tips = lines[0]  # Assume first line is camera tips
-    exposure_tips = {
-        'aperture': lines[1].split(':')[1].strip(),
-        'shutter_speed': lines[2].split(':')[1].strip(),
-        'ISO': lines[3].split(':')[1].strip()
-    }
-    return camera_tips, exposure_tips
+    
+    # Initialize camera tips, exposure tips, and key recommendations
+    camera_tips = ""
+    exposure_tips = {}
+    key_recommendations = ""
+
+    # Assuming the first few lines contain camera tips
+    if lines:
+        camera_tips = lines[0]  # Camera tips from the first line
+        
+        # Collect exposure tips and key recommendations
+        for line in lines[1:]:
+            line = line.strip()
+            if line.lower().startswith("aperture:"):
+                exposure_tips['aperture'] = line.split(':', 1)[1].strip()
+            elif line.lower().startswith("shutter speed:"):
+                exposure_tips['shutter_speed'] = line.split(':', 1)[1].strip()
+            elif line.lower().startswith("iso:"):
+                exposure_tips['ISO'] = line.split(':', 1)[1].strip()
+            elif line.lower().startswith("key recommendations:"):
+                key_recommendations = line.split(':', 1)[1].strip()
+                break  # Stop processing further once we find the key recommendations
+
+    return camera_tips, exposure_tips, key_recommendations
 
 def ai_recommendations(image_path):
     # Load your OpenAI API key from environment variables
@@ -158,18 +174,15 @@ def ai_recommendations(image_path):
         print("OpenAI API response:", response)
 
         # Ensure there are choices in the response
-        if not response.choices:
+        if not response.choices or not response.choices[0].message['content']:
             return "No recommendations available.", {}, "Summary not available."
 
         # Extract the AI's response
         recommendations = response.choices[0].message['content']
+        print("Recommendations:", recommendations)  # Print recommendations for debugging
 
         # Parse the recommendations
-        camera_tips, exposure_tips = parse_recommendations(recommendations)
-
-        # Also extract a summary from the response (e.g., last lines or a specific structure)
-        summary_start = recommendations.find("Key Recommendations:")
-        key_recommendations = recommendations[summary_start:].strip() if summary_start != -1 else "Summary not available."
+        camera_tips, exposure_tips, key_recommendations = parse_recommendations(recommendations)
 
         return camera_tips, exposure_tips, key_recommendations
 
