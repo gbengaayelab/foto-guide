@@ -184,18 +184,22 @@ def index():
 
 
 # AI Shot Advisor route
-@app.route("/ai-advisor", methods=["GET", "POST"])
+@app.route("/ai_advisor", methods=["GET", "POST"])
 def ai_advisor():
     camera_tips = ""
     exposure_tips = {}
-    
+    image_path = ""
+    error_message = None  # Ensure error_message is initialized
+
     if request.method == "POST":
         if 'image' not in request.files:
-            return redirect(request.url)
+            error_message = "No image file selected."
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
         
         file = request.files['image']
         if file.filename == '':
-            return redirect(request.url)
+            error_message = "No file was uploaded."
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -205,7 +209,7 @@ def ai_advisor():
             # Call AI function for recommendations
             camera_tips, exposure_tips = ai_recommendations(image_path)
     
-    return render_template("ai_advisor.html", camera_tips=camera_tips, exposure_tips=exposure_tips)
+    return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
 
 
 if __name__ == "__main__":
