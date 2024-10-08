@@ -192,32 +192,35 @@ def index():
     return render_template("index.html", recommendation=recommendation, uploaded_file_url=uploaded_file_url)
 
 # AI Shot Advisor route
-@app.route("/ai-advisor", methods=["GET", "POST"])
+@app.route('/ai_advisor', methods=['GET', 'POST'])
 def ai_advisor():
-    camera_tips = ""
-    exposure_tips = {}
-    error_message = None  # Add error message variable
-    
-    if request.method == "POST":
-        if 'image' not in request.files:
-            return redirect(request.url)
-        
+    image_path = None
+    ai_recommendations = {}
+    error_message = None
+
+    if request.method == 'POST':
+        # Handle file upload
         file = request.files['image']
-        if file.filename == '':
-            return redirect(request.url)
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(image_path)
+        if file:
+            # Save the uploaded file and process it
+            image_path = save_uploaded_file(file)  # Implement this function as needed
             
-            # Call AI function for recommendations
             try:
-                camera_tips, exposure_tips = ai_recommendations(image_path)
+                # Call your AI model here and get recommendations
+                ai_recommendations = get_ai_recommendations(image_path)  # Implement this function
+                
+                # Assuming the AI returns a dictionary of tips
+                exposure_tips = {
+                    'Aperture': ai_recommendations.get('aperture', 'No recommendation'),
+                    'ISO': ai_recommendations.get('iso', 'No recommendation'),
+                    'Shutter Speed': ai_recommendations.get('shutter_speed', 'No recommendation')
+                }
+
             except Exception as e:
-                error_message = str(e)  # Capture the error message
-    
-    return render_template("ai_advisor.html", camera_tips=camera_tips, exposure_tips=exposure_tips, error_message=error_message)
+                error_message = str(e)
+
+    return render_template('ai_advisor.html', image_path=image_path, exposure_tips=exposure_tips, error_message=error_message)
+
 
     print(f"Using OpenAI API Key: {OPENAI_API_KEY}")  # Add this line to check if the key is being loaded
 
