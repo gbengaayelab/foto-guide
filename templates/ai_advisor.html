@@ -257,10 +257,7 @@ p {
         <!-- Show any error messages -->
         
     <!-- Show the uploaded image -->
-    {% if image_path %}
-    <h2>Uploaded Image</h2>
-    <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" width="300px">
-    {% endif %}
+   
         <!-- ai_advisor.html -->
     {% if image_path %}
     <img src="{{ image_path }}" alt="Uploaded Image" style="max-width: 100%; height: auto;">
@@ -269,25 +266,16 @@ p {
     {% endif %}
     <!-- Show AI camera tips -->
     {% if camera_tips %}
-    <h2>Camera Tips</h2>
-    <p>{{ camera_tips }}</p>
+    <div class="ai-response" style="white-space: pre-wrap;">
+        <h2>Camera Tips</h2>
+        <p>{{ camera_tips|safe }}</p>
+    </div>
     {% endif %}
+       
+    
+    
 
-    <!-- Show AI exposure triangle tips -->
-    {% if exposure_tips %}
-    <h2>Exposure Settings</h2>
-    <ul>
-        <li><strong>Aperture:</strong> {{ exposure_tips.aperture }}</li>
-        <li><strong>Shutter Speed:</strong> {{ exposure_tips.shutter_speed }}</li>
-        <li><strong>ISO:</strong> {{ exposure_tips.ISO }}</li>
-    </ul>
-    {% endif %}
-
-    <!-- Key Recommendations -->
-    {% if key_recommendations %}
-    <h2>Key Recommendations</h2>
-    <p>{{ key_recommendations }}</p>
-    {% endif %}
+   
 
     <!-- Footer -->
     <footer class="footer">

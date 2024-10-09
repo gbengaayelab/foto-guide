@@ -1,33 +1,21 @@
 import os
-from dotenv import load_dotenv
-from flask import Flask, request, render_template
-from werkzeug.utils import secure_filename
 from groq import Groq
-
-
+from flask import Flask, render_template, request, redirect, url_for, flash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-
-# Initialise Groq client
-groq_client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),  # Set your Groq API key as an environment variable
-)
-
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Configurations for file uploads
 UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Retrieve the Groq API key from the environment variable
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
- # Get the API key
-api_key = os.environ.get("GROQ_API_KEY")
-if not api_key:
-    raise ValueError("The GROQ_API_KEY environment variable must be set.")
+# Initialize the Groq client
+client = Groq(api_key=GROQ_API_KEY)
 
-groq_client = Groq(api_key=api_key)
+
 # Helper function to check allowed file types
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -169,97 +157,105 @@ def parse_recommendations(recommendations):
 
     return camera_tips, exposure_tips, key_recommendations
 
-def ai_recommendations(image_path):
-    # Load your OpenAI API key from environment variables
-    openai.api_key = OPENAI_API_KEY
+from groq import Groq
 
-    # Create a prompt for the OpenAI model
+# Initialize the Groq client
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),  # Use your Groq API key stored as an environment variable
+)
+
+# AI-based recommendations logic
+def format_ai_response(response):
+    """
+    Formats the raw AI response into HTML-friendly text with proper paragraph separation.
+    """
+    # Replace newline characters with <br> for line breaks and separate paragraphs
+    formatted_response = response.replace("\n\n", "</p><p>").replace("\n", "<br>")
+    return f"<p>{formatted_response}</p>"
+
+
+def ai_recommendations(image_path):
+    # Create a prompt for the Groq model
     prompt = f"Analyze the image at '{image_path}' and provide photography recommendations including camera settings like aperture, shutter speed, ISO, white balance, focus mode, and a short summary of key recommendations."
 
     try:
-        # Call the OpenAI API
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+        # Call the Groq API for recommendations
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama3-8b-8192"
         )
 
-        # Print the entire response for debugging
-        print("OpenAI API response:", response)
+        # # Extract the AI's response
+        # recommendations = response.choices[0].message.content  # Use the first choice
+        # print("Recommendations:", recommendations)  # Print recommendations for debugging
 
-        # Ensure there are choices in the response
-        if not response.choices or not response.choices[0].message['content']:
-            return "No recommendations available.", {}, "Summary not available."
+        # # Return the recommendations directly
+        # return recommendations, {}, ""
 
-        # Extract the AI's response
-        recommendations = response.choices[0].message['content']
+         # Extract the AI's response
+        recommendations = response.choices[0].message.content  # Use the first choice
         print("Recommendations:", recommendations)  # Print recommendations for debugging
-
-        # Parse the recommendations
-        camera_tips, exposure_tips, key_recommendations = parse_recommendations(recommendations)
-
-        return camera_tips, exposure_tips, key_recommendations
+        
+        # Format the recommendations before returning
+        formatted_response = format_ai_response(recommendations)
+        return formatted_response, {}, ""
 
     except Exception as e:
-        print(f"An error occurred while calling OpenAI API: {e}")
+        print(f"An error occurred while calling Groq API: {e}")
         return "Error generating recommendations", {}, "Summary not available."
-
-# Home route with existing recommendations
-@app.route('/ai_advisor', methods=['POST'])
-def ai_advisor():
-    if 'file' not in request.files:
-        return "No file part"
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file"
     
-    if file:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    
+# Home route with existing recommendations
+@app.route("/", methods=["GET", "POST"])
+def index():
+    recommendation = {}
+    uploaded_file_url = None
+    if request.method == "POST":
+        if 'event_type' in request.form and 'subject_type' in request.form:
+            event_type = int(request.form["event_type"])
+            subject_type = int(request.form["subject_type"])
+            aperture, shutter_speed, iso, explanation, rating = get_recommendations(event_type, subject_type)
+            recommendation = {
+                "Aperture": aperture,
+                "Shutter Speed": shutter_speed,
+                "ISO": iso,
+                "Explanation": explanation,
+                "Rating": rating
+            }
+        if 'file' in request.files:
+            file = request.files['file']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                uploaded_file_url = url_for('static', filename=f'uploads/{filename}')
+    return render_template("index.html", recommendation=recommendation, uploaded_file_url=uploaded_file_url)
 
-        # Prepare prompt for Groq model
-        prompt = f"Based on this image at '{filepath}', provide camera positioning tips and exposure settings."
-
-        # Call Groq's LLM for recommendations
-        response = groq_client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama3-8b-8192",
-        )
-
-        # Extract the content from the response
-        recommendations = response.choices[0].message.content
-
-        return render_template('ai_advisor.html', filename=filename, recommendations=recommendations)
-
+# AI Shot Advisor route
 @app.route("/ai_advisor", methods=["GET", "POST"])
 def ai_advisor():
     camera_tips = ""
-    exposure_tips = {}
-    key_recommendations = ""
     image_path = ""
     error_message = None
 
     if request.method == "POST":
         if 'image' not in request.files:
             error_message = "No image file selected."
-            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, error_message=error_message)
         
         file = request.files['image']
         if file.filename == '':
             error_message = "No file was uploaded."
-            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
+            return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, error_message=error_message)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(image_path)
             
-            # Call Groq AI function for recommendations
-            camera_tips, exposure_tips, key_recommendations = ai_recommendations(image_path)
-    
-    return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, exposure_tips=exposure_tips, key_recommendations=key_recommendations, error_message=error_message)
+            # Call AI function for recommendations
+            camera_tips= ai_recommendations(image_path)
+            print(camera_tips)
+    return render_template("ai_advisor.html", image_path=image_path, camera_tips=camera_tips, error_message=error_message)
 
 if __name__ == "__main__":
     app.run(debug=True)
